@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── KTP Design Tokens ── */
+:root {
+  --blue:          #458EFF;
+  --blue-light:    #8BB9FF;
+  --blue-dark:     #023c8b;
+  --blue-bg:       rgba(69, 142, 255, 0.07);
+  --blue-bg2:      rgba(69, 142, 255, 0.13);
+  --green:         #538b52;
+  --green-mid:     #8ddd88;
+  --green-light:   #baecba;
+  --green-bg:      rgba(83, 139, 82, 0.07);
+  --green-bg2:     rgba(141, 221, 136, 0.15);
+  --warn:          #f59e0b;
+  --danger:        #ef4444;
+  --gray-50:       #f8f9fb;
+  --gray-100:      #f1f3f7;
+  --gray-200:      #e4e7ef;
+  --gray-300:      #cdd2de;
+  --gray-400:      #9aa3b5;
+  --gray-500:      #6b7590;
+  --gray-600:      #4a5168;
+  --gray-700:      #343a4f;
+  --gray-800:      #1e2333;
+  --gray-900:      #0f1320;
+  --shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:     0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg:     0 8px 30px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
+}
+
+/* ── Base ── */
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background-color: var(--gray-50);
+  color: var(--gray-800);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Utility classes used across components ── */
+@layer components {
+
+  /* Score bars */
+  .score-bar-high  { background-color: var(--blue); }
+  .score-bar-mid   { background-color: var(--blue-light); }
+  .score-bar-low   { background-color: var(--gray-300); }
+
+  .score-text-high { color: var(--blue); }
+  .score-text-mid  { color: var(--blue-light); }
+  .score-text-low  { color: var(--gray-400); }
+
+  /* KTP accent top border */
+  .accent-top-blue  { border-top: 2px solid var(--blue); }
+  .accent-top-green { border-top: 2px solid var(--green); }
+
+  /* Gradient bar — used in topbar + hero */
+  .ktp-gradient {
+    background: linear-gradient(90deg, var(--blue), var(--green));
+  }
+
+  /* Availability dot */
+  .avail-dot {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium;
+  }
+  .avail-dot::before {
+    content: '';
+    @apply block w-2 h-2 rounded-full bg-gray-300;
+  }
+  .avail-dot-on::before {
+    background-color: var(--green-mid);
+    box-shadow: 0 0 0 2px var(--green-bg2);
+  }
+  .avail-dot-on {
+    color: var(--green);
+  }
+
+  /* Card base */
+  .ktp-card {
+    @apply bg-white rounded-xl border border-gray-200 p-5;
+    border-color: var(--gray-200);
+  }
+
+  /* Page fade in */
+  .page-enter {
+    animation: fadeUp 0.22s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
