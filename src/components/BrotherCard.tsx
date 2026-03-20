@@ -7,9 +7,11 @@ interface BrotherCardProps {
   brother: BrotherWithScore;
   isTopMatch?: boolean;
   onClick: () => void;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }
 
-export function BrotherCard({ brother, isTopMatch, onClick }: BrotherCardProps) {
+export function BrotherCard({ brother, isTopMatch, onClick, isSelected, onToggleSelect }: BrotherCardProps) {
   return (
     <div
       onClick={onClick}
@@ -39,6 +41,30 @@ export function BrotherCard({ brother, isTopMatch, onClick }: BrotherCardProps) 
         <div style={{ position:"absolute", top:10, right:10, fontSize:9, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.6px", background:"var(--blue)", color:"white", padding:"2px 7px", borderRadius:999 }}>
           Top match
         </div>
+      )}
+
+      {/* Selection checkbox (used for multi-request) */}
+      {onToggleSelect && (
+        <button
+          type="button"
+          aria-pressed={Boolean(isSelected)}
+          onClick={e => {
+            e.stopPropagation();
+            onToggleSelect();
+          }}
+          style={{
+            position:"absolute", top:10, left:10,
+            width:26, height:26, borderRadius:999,
+            border:`1.5px solid ${isSelected ? "var(--blue-light)" : "var(--gray-200)"}`,
+            background: isSelected ? "var(--blue)" : "white",
+            color: isSelected ? "white" : "var(--gray-600)",
+            cursor:"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:14, fontWeight:800, lineHeight:1,
+          }}
+        >
+          {isSelected ? "✓" : ""}
+        </button>
       )}
 
       {/* Avatar */}

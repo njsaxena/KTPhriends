@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   const completed  = chats.filter(c => c.status === "completed").length;
   const confirmed  = chats.filter(c => c.status === "confirmed").length;
-  const goalTotal  = 5;
+  const goalTotal  = 50;
   const pct        = Math.round((completed / goalTotal) * 100);
   const availCount = MOCK_BROTHERS.filter(b => b.available_this_week).length;
 

@@ -1,5 +1,6 @@
 import AppLayout from "@/components/AppLayout";
 import { PageHeader, StatCard, Pill } from "@/components/ui";
+import { ExportButton } from "@/components/ExportButton";
 
 // Mock admin data
 // TODO: replace with Supabase query that joins profiles + chat_requests
@@ -17,7 +18,7 @@ const PLEDGE_STATS = [
   { name:"Hayden J.", major:"ECE",         chats:4, last:"Mar 16" },
   { name:"Reese A.",  major:"CS",          chats:0, last:"—" },
 ];
-const GOAL = 5;
+const GOAL = 50;
 const LOW_MATCH_BROTHERS = ["Jordan P.", "Omar W.", "Sam R."];
 
 export default function AdminPage() {
@@ -112,27 +113,5 @@ export default function AdminPage() {
         </div>
       </main>
     </AppLayout>
-  );
-}
-
-// Client component for CSV export
-// (needs "use client" — separated to keep parent as Server Component)
-function ExportButton() {
-  return (
-    <button
-      style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"5px 12px", borderRadius:10, fontFamily:"inherit", fontSize:12, fontWeight:500, cursor:"pointer", border:"1px solid var(--gray-200)", background:"white", color:"var(--gray-600)" }}
-      onClick={() => {
-        const rows = [["Pledge","Major","Chats","Last chat"],
-          ...[ {name:"Jamie S.", major:"CS", chats:2, last:"Mar 15"} ].map(p => [p.name, p.major, p.chats, p.last])
-        ];
-        const csv = rows.map(r => r.join(",")).join("\n");
-        const a = document.createElement("a");
-        a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-        a.download = "ktphriends-spring2025.csv";
-        a.click();
-      }}
-    >
-      Export CSV ↓
-    </button>
   );
 }

@@ -24,7 +24,8 @@ type SortKey = "score" | "name" | "available";
 export default function BrowsePage() {
   const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<SortKey>("score");
-  const [selected, setSelected] = useState<BrotherWithScore | null>(null);
+  const [modalBrother, setModalBrother] = useState<BrotherWithScore | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState({ visible: false, msg: "" });
 
   // TODO: replace with Supabase query
@@ -41,7 +42,11 @@ export default function BrowsePage() {
     if (activeFilters.has("nearBU"))    bros = bros.filter(b => b.locations.some(l => l.includes("BU campus") || l.includes("Kenmore")));
     if (activeFilters.has("coffee"))    bros = bros.filter(b => b.food_prefs.includes("Coffee"));
     if (activeFilters.has("boba"))      bros = bros.filter(b => b.food_prefs.includes("Boba / Tea"));
-    if (activeFilters.has("cs"))        bros = bros.filter(b => b.major.toLowerCase().includes("cs") || b.major.toLowerCase().includes("computer") || b.major.toLowerCase().includes("eng"));
+    if (activeFilters.has("cs"))
+      bros = bros.filter(b => {
+        const major = (b.major ?? "").toLowerCase();
+        return major.includes("cs") || major.includes("computer") || major.includes("eng");
+      });
     if (activeFilters.has("time"))      bros = bros.filter(b => b.scoreBreakdown.time >= 20);
 
     if (sort === "name")      bros.sort((a, b) => a.full_name.localeCompare(b.full_name));
@@ -50,6 +55,20 @@ export default function BrowsePage() {
 
     return bros;
   }, [allRanked, activeFilters, sort]);
+
+  const selectedBrothers = useMemo(
+    () => allRanked.filter(b => selectedIds.has(b.id)),
+    [allRanked, selectedIds]
+  );
+
+  function toggleBrotherSelected(broId: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(broId)) next.delete(broId);
+      else next.add(broId);
+      return next;
+    });
+  }
 
   function toggleFilter(key: string) {
     setActiveFilters(prev => {
@@ -65,9 +84,22 @@ export default function BrowsePage() {
   }
 
   function handleRequest(bro: BrotherWithScore) {
-    setSelected(null);
+    setModalBrother(null);
     showToast(`Chat request sent to ${bro.full_name}!`);
     // TODO: supabase.from("chat_requests").insert({ pledge_id, brother_id: bro.id, status:"requested" })
+  }
+
+  function handleRequestSelected() {
+    if (selectedBrothers.length === 0) return;
+    const n = selectedBrothers.length;
+
+    setSelectedIds(new Set());
+    setModalBrother(null);
+
+    showToast(`Chat request sent to ${n} brother${n === 1 ? "" : "s"}!`);
+    // TODO: supabase.from("chat_requests").insert(
+    //   selectedBrothers.map(b => ({ pledge_id, brother_id: b.id, status:"requested" }))
+    // )
   }
 
   const topScore = filtered[0]?.score ?? 0;
@@ -123,6 +155,29 @@ export default function BrowsePage() {
           )}
         </div>
 
+        {/* Multi-request action bar */}
+        {selectedIds.size > 0 && (
+          <div style={{ background:"white", border:"1px solid var(--gray-200)", borderRadius:14, padding:"12px 16px", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between", gap:12 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:"var(--gray-800)" }}>
+              {selectedIds.size} selected
+            </div>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              <button
+                onClick={handleRequestSelected}
+                style={{ padding:"8px 14px", borderRadius:10, background:"var(--blue)", color:"white", border:"1px solid var(--blue-light)", fontSize:13, fontWeight:600, cursor:"pointer" }}
+              >
+                Request {selectedIds.size} chat{selectedIds.size === 1 ? "" : "s"}
+              </button>
+              <button
+                onClick={() => setSelectedIds(new Set())}
+                style={{ padding:"8px 12px", borderRadius:10, background:"transparent", color:"var(--gray-600)", border:"1px solid var(--gray-200)", fontSize:13, fontWeight:600, cursor:"pointer" }}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Grid */}
         {filtered.length === 0 ? (
           <div style={{ textAlign:"center", padding:"60px 20px", color:"var(--gray-400)" }}>
@@ -137,7 +192,9 @@ export default function BrowsePage() {
                 key={bro.id}
                 brother={bro}
                 isTopMatch={i === 0 && bro.score === topScore && bro.score >= 75}
-                onClick={() => setSelected(bro)}
+                isSelected={selectedIds.has(bro.id)}
+                onToggleSelect={() => toggleBrotherSelected(bro.id)}
+                onClick={() => setModalBrother(bro)}
               />
             ))}
           </div>
@@ -145,10 +202,10 @@ export default function BrowsePage() {
       </main>
 
       {/* Modal */}
-      {selected && (
+      {modalBrother && (
         <BrotherModal
-          brother={selected}
-          onClose={() => setSelected(null)}
+          brother={modalBrother}
+          onClose={() => setModalBrother(null)}
           onRequest={handleRequest}
         />
       )}
